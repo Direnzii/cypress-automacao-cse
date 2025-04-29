@@ -1,30 +1,63 @@
-import * as untilCheck from "../functions/checagemGeral.js";
-import * as untilTelaInicial from "../functions/resetarCotacao.js";
-import * as util from "../functions/utils.js";
-import * as modal from "../functions/validarModais.js";
+import {
+    checarVisibilidadeDoBotaoDepoisClicar,
+    logarAcessarCotacaoReiniciarCompletamentePelaApi,
+} from "../functions/utils/utils";
+import { funcoesBotaoModal } from "../functions/utils/validarModais";
+import {
+    checarDadosModalLupa,
+    checagemElementosTelaResumoPrincipais,
+    checagemElementosTelaResumoCategoria,
+    checagemElementosTelaResumoAcordeonCliente,
+    checarSelectResumoResposta,
+} from "../functions/resumoPedido/resumoPedido";
+import { reiniciarCompletamenteCotacao } from "../functions/utils/resetarCotacao";
+import { RESUMO_PEDIDO, URL_AUTH_DEMO } from "../functions/utils/envVariaveis";
+import except from "../functions/utils/except";
+import { inicioDosTestes } from "../functions/login/login";
+import { botaoEncerrarCotacao } from "../functions/utils/constants";
 
-describe("Tela inicial de resposta da cotação", () => {
-    it("Deve checar a visibilidade dos componentes principais, botões de ação cima e baixo, filtros por categorias dados de dentro dos acordeons do cliente", () => {
-        util.first();
-        untilCheck.checagemElementosTelaResumo();
-    });
-    it("Deve abrir as modais cancelar cotacao, alterar vencimento, geração do pedido automatico, geração do pedido manual", () => {
-        util.first();
-        modal.funcoesBotaoModal.cancelarCotacao();
-        modal.funcoesBotaoModal.alterarVencimento();
-        untilCheck.encerrarCot();
-        modal.funcoesBotaoModal.pedidoAutoAndManual();
-    });
-    it("Deve acessar as modais de resposta OK e checar os componentes, tal como paginação, ordenação, filtro, sinalizadores interno e externo", () => {
-        util.first();
-        untilCheck.blocoRespostaFornecedor();
-    });
+beforeEach(() => {
+    inicioDosTestes(RESUMO_PEDIDO, "spec-resumoPedido", "pedido-resumo");
+    cy.intercept(
+        "GET",
+        `${URL_AUTH_DEMO}/resumoresposta/getFornecedores/${RESUMO_PEDIDO}?*`
+    )
+        .as("getFornecedores")
+        .wait("@getFornecedores");
+    reiniciarCompletamenteCotacao();
+    except();
 });
 
-describe("Encerrar cotação e validação geral da tela", () => {
-    it("Deve encerrar a cotação, depois realizar a checagem dos elementos categorias e acordeon de filiais", () => {
-        util.first();
-        untilCheck.checagemElementosTelaResumo(true); //encerrar = true
-        untilTelaInicial.reiniciarCompletamenteCotacao();
+afterEach(() => {
+    logarAcessarCotacaoReiniciarCompletamentePelaApi(RESUMO_PEDIDO, true);
+});
+
+describe("Tela inicial de resposta da cotação (Resumo)", () => {
+    it("Deve checar a visibilidade dos componentes principais", () => {
+        checagemElementosTelaResumoPrincipais();
+    });
+    it("Deve checar o filtros por categorias", () => {
+        checagemElementosTelaResumoCategoria();
+    });
+    it("Deve checar os dados de dentro dos acordeons do cliente", () => {
+        checagemElementosTelaResumoAcordeonCliente();
+    });
+    it("Deve abrir as modais cancelar cotacao, alterar vencimento, geração do pedido automatico, geração do pedido manual", () => {
+        funcoesBotaoModal.cancelarCotacao();
+        funcoesBotaoModal.alterarVencimento();
+        checarVisibilidadeDoBotaoDepoisClicar(botaoEncerrarCotacao);
+        funcoesBotaoModal.pedidoAutoAndManual();
+    });
+    it("Deve acessar as modais de resposta OK e checar os dados e a ordenação", () => {
+        checarDadosModalLupa("dados", false);
+    });
+    it("Deve acessar as modais de resposta OK e checar se existem dados sobreposto", () => {
+        checarDadosModalLupa("textoSobreposto", false);
+    });
+    it("Deve acessar as modais de resposta OK e checar o filtro", () => {
+        checarDadosModalLupa("filtro", false);
+    });
+    it("Deve selecionar uma quantidade de representantes exibidos, clicar em verificar resposta e checar request", () => {
+        checarSelectResumoResposta();
     });
 });
