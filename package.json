@@ -1,15 +1,21 @@
 {
     "name": "testes_cotefacil",
-    "version": "1.1.1",
-    "description": "testes automaticos nas aplicações da cotefacil",
+    "version": "2.2.3",
+    "description": "Testes automáticos nas aplicações da Cotefácil",
     "main": "validacaoCompleta.cy.js",
     "scripts": {
-        "test": ""
+        "test:chatFirefox": "npx cypress run --spec .\\cypress\\e2e\\chat.cy.js --browser firefox --quiet",
+        "test:chatChrome": "npx cypress run --spec .\\cypress\\e2e\\chat.cy.js --browser chrome --quiet",
+        "test:chatElectron": "npx cypress run --spec .\\cypress\\e2e\\chat.cy.js --browser electron --quiet",
+        "test:chatEdge": "npx cypress run --spec .\\cypress\\e2e\\chat.cy.js --browser edge --quiet",
+        "test:chatAll": "npm run test:chatFirefox && npm run test:chatChrome && npm run test:chatElectron && npm run test:chatEdge"
     },
-    "author": "Direnzi, Carlos",
+    "author": "Team QA CTF",
     "license": "ISC",
     "devDependencies": {
-        "cypress": "^13.6.0",
         "cypress-iframe": "^1.0.1"
+    },
+    "dependencies": {
+        "cypress": "^13.17.0"
     }
 }
