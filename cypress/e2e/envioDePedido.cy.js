@@ -13,13 +13,9 @@ import { inicioDosTestes } from "../functions/login/login";
 
 beforeEach(() => {
     inicioDosTestes(ENVIO_PEDIDO, "spec-envioDePedido", "pedido-resumo");
-    cy.log("DIRENZI 1");
     checarVisibilidadeDosBotoesResumoSituacao1();
-    cy.log("DIRENZI 2");
     processarPedidoAuto(ENVIO_PEDIDO);
-    cy.log("DIRENZI 3");
     cy.reload();
-    cy.log("DIRENZI 4");
     except();
 });
 
